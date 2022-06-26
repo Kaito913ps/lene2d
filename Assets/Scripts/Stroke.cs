@@ -5,62 +5,91 @@ using System.Linq;
 
 public class Stroke : MonoBehaviour
 {
-    //線の材質
-    [SerializeField] Material lineMaterial;
+    /// <summary>
+    /// 描く線のコンポーネントリスト
+    /// </summary>
+    private List<LineRenderer> lineRendererList;
 
-    //線の色
-    [SerializeField] Color lineColor;
+    /// <summary>
+    /// 描く線のマテリアル
+    /// </summary>
+    public Material lineMaterial;
 
-    //線の太さ
-    [Range(0.1f, 0.5f)]
-    [SerializeField] float lineWidth;
-    
-    //追加　LineRender型のリスト宣言
-    List<LineRenderer> lineRenderers;
-    void Start()
+    /// <summary>
+    /// 描く線の色
+    /// </summary>
+    public Color lineColor;
+
+    /// <summary>
+    /// 描く線の太さ
+    /// </summary>
+    [Range(0, 10)] public float lineWidth;
+
+
+    void Awake()
     {
-        //追加　Listの初期化
-        lineRenderers = new List<LineRenderer>();
+        lineRendererList = new List<LineRenderer>();
     }
 
-    
     void Update()
     {
-        // クリックをしたタイミング
-        if(Input.GetMouseButtonDown(0))
+
+        // ボタンが押された時に線オブジェクトの追加を行う
+        if (Input.GetMouseButtonDown(0))
         {
-            //lineObjを生成、初期化する
-            addLineObject();
+            this.AddLineObject();
+        }
+
+        // ボタンが押されている時、LineRendererに位置データの設定を指定していく
+        if (Input.GetMouseButton(0))
+        {
+            this.AddPositionDataToLineRendererList();
         }
     }
 
-    void addLineObject()
+    /// <summary>
+    /// 線オブジェクトの追加を行うメソッド
+    /// </summary>
+    private void AddLineObject()
     {
-        //空のゲームオブジェクト作成
-        GameObject lineObj = new GameObject();
-        //オブジェクトの名前をStrokeに変更
-        lineObj.name = "Stroke";
-        //lineObjにLineRendereコンポーネント追加
-        lineObj.AddComponent<LineRenderer>();
-        //lineRendererリストにlineObjを追加
-        lineRenderers.Add(lineObj.GetComponent<LineRenderer>());
-        //lineObjを自身の子要素に設定
-        lineObj.transform.SetParent(transform);
-        //lineObj初期化処理
-        initRenderes();
+
+        // 追加するオブジェクトをインスタンス
+        GameObject lineObject = new GameObject();
+
+        // オブジェクトにLineRendererを取り付ける
+        lineObject.AddComponent<LineRenderer>();
+
+        // 描く線のコンポーネントリストに追加する
+        lineRendererList.Add(lineObject.GetComponent<LineRenderer>());
+
+        // 線と線をつなぐ点の数を0に初期化
+        lineRendererList.Last().positionCount = 0;
+
+        // マテリアルを初期化
+        lineRendererList.Last().material = this.lineMaterial;
+
+        // 線の色を初期化
+        lineRendererList.Last().material.color = this.lineColor;
+
+        // 線の太さを初期化
+        lineRendererList.Last().startWidth = this.lineWidth;
+        lineRendererList.Last().endWidth = this.lineWidth;
     }
 
-    //lineObj初期化処理
-    void initRenderes()
+    /// <summary>
+    /// 描く線のコンポーネントリストに位置情報を登録していく
+    /// </summary>
+    private void AddPositionDataToLineRendererList()
     {
-        //線を繋ぐ点を0に初期化
-        lineRenderers.Last().positionCount = 0;
-        //マテリアルを初期化
-        lineRenderers.Last().material = lineMaterial;
-        //色の初期化
-        lineRenderers.Last().material.color = lineColor;
-        //太さの初期化
-        lineRenderers.Last().startWidth = lineWidth;
-        lineRenderers.Last().endWidth = lineWidth;
+
+        // 座標の変換を行いマウス位置を取得
+        Vector3 screenPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane + 1.0f);
+        var mousePosition = Camera.main.ScreenToWorldPoint(screenPosition);
+
+        // 線と線をつなぐ点の数を更新
+        lineRendererList.Last().positionCount += 1;
+
+        // 描く線のコンポーネントリストを更新
+        lineRendererList.Last().SetPosition(lineRendererList.Last().positionCount - 1, mousePosition);
     }
 }
