@@ -14,9 +14,12 @@ public class Stroke : MonoBehaviour
     [Range(0.1f, 0.5f)]
     [SerializeField] float lineWidth;
     
+    //追加　LineRender型のリスト宣言
+    List<LineRenderer> lineRenderers;
     void Start()
     {
-        
+        //追加　Listの初期化
+        lineRenderers = new List<LineRenderer>();
     }
 
     
