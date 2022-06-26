@@ -4,13 +4,22 @@ using UnityEngine;
 
 public class Stroke : MonoBehaviour
 {
-    // Start is called before the first frame update
+    //ü‚ÌŞ¿
+    [SerializeField] Material lineMaterial;
+
+    //ü‚ÌF
+    [SerializeField] Color lineColor;
+
+    //ü‚Ì‘¾‚³
+    [Range(0.1f, 0.5f)]
+    [SerializeField] float lineWidth;
+    
     void Start()
     {
         
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         
